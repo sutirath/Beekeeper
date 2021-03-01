@@ -21,7 +21,7 @@
         @click.stop="sidebarMenu = !sidebarMenu"
       ></v-app-bar-nav-icon>
       <v-spacer></v-spacer>
-      <div class="text-center" v-if="ststus=='User'">
+      <div class="text-center" v-if="ststus == 'User'">
         <v-menu offset-y>
           <template v-slot:activator="{ on, attrs }">
             <v-badge overlap color="red" :content="itemscount">
@@ -57,6 +57,7 @@
                 max-width="400"
                 max-height="32"
                 src="../assets/icon.png"
+                alt="logo"
               ></v-img>
             </v-list-item-title>
           </v-list-item-content>
@@ -113,7 +114,7 @@ export default {
   beforeCreate() {
     firebase.auth().onAuthStateChanged((user) => {
       user.getIdTokenResult().then((idTokenResult) => {
-        this.ststus = idTokenResult.claims.User
+        this.ststus = idTokenResult.claims.User;
         if (idTokenResult.claims.User == "Admin") {
           this.items = [
             {
@@ -197,7 +198,7 @@ export default {
     items: [],
     systemItems: [],
     itemscount: 0,
-    ststus:"",
+    ststus: "",
   }),
   created() {
     this.getSystem();

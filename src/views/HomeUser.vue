@@ -51,16 +51,28 @@
         <v-row>
           <v-col lg="6" cols="sm" md="6">
             <center><h3>จำนวนกล่องผึ้งต่อจุด</h3></center>
-            <chartLocations v-bind:Data="BeeBox"/>
+            <chartLocations v-bind:Data="BeeBox" />
           </v-col>
-          <v-col lg="6" cols="sm" md="6">
+          <!-- <v-col lg="6" cols="sm" md="6">
             <center><h3>ผลการทำนาย</h3></center>
-            <accuracyChart v-bind:Data="History"/>
+            <accuracyChart v-bind:Data="History" />
+          </v-col> -->
+          <v-col lg="6" cols="sm" md="6">
+            <center><h3>ภาพรวมฟาร์ม</h3></center>
+            <classChart v-bind:Data="History" />
           </v-col>
         </v-row>
       </div>
+      <!-- <div class="container">
+        <v-card elevation="0" max-width="500">
+          <br />
+          <center><h3>ภาพรวมฟาร์ม</h3></center>
+          <br />
+          <classChart v-bind:Data="History" />
+        </v-card>
+      </div> -->
 
-      <div style="padding-bottom: 45px" >
+      <div style="padding-bottom: 45px">
         <BeeboxTable v-bind:BeeBox="BeeBox" />
       </div>
 
@@ -91,6 +103,7 @@ import locations from "../components/Home/Locationresult";
 import HistoryTable from "../components/Home/History";
 import chartLocations from "../components/Dashboard_Users/locationDash";
 import accuracyChart from "../components/Dashboard_Users/AccuracyChart";
+import classChart from "../components/Dashboard_Users/ClassChart";
 
 export default {
   name: "Home",
@@ -127,6 +140,7 @@ export default {
     HistoryTable,
     chartLocations,
     accuracyChart,
+    classChart,
   },
   created() {
     this.getdata();

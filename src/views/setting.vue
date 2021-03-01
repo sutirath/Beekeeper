@@ -27,7 +27,7 @@
       rounded="pill"
       top
     >
-      คุณยังไม่ได้ใส่ไฟล์
+      กรุณาใส่ไฟล์ให้ครบก่อนการอัพโหลด
 
       <template v-slot:action="{ attrs }">
         <v-btn color="white" text v-bind="attrs" @click="snackbar3 = false">
@@ -315,8 +315,9 @@
                   v-model="files"
                   color="deep-purple accent-4"
                   counter
-                  label="File input"
+                  label="Model File"
                   multiple
+                  accept=".h5"
                   placeholder="New Model AI"
                   prepend-icon="mdi-paperclip"
                   outlined
@@ -342,6 +343,42 @@
                     </span>
                   </template>
                 </v-file-input>
+
+                <div>
+                  <v-file-input
+                    v-model="files_label"
+                    color="light-blue accent-3"
+                    counter
+                    label="Class Label"
+                    multiple
+                    accept=".txt"
+                    placeholder="New Class Label AI"
+                    prepend-icon="mdi-paperclip"
+                    outlined
+                    :show-size="1000"
+                    @change="getFileLabel()"
+                  >
+                    <template v-slot:selection="{ index, text }">
+                      <v-chip
+                        v-if="index < 2"
+                        color="light-blue accent-3"
+                        dark
+                        label
+                        small
+                      >
+                        {{ text }}
+                      </v-chip>
+
+                      <span
+                        v-else-if="index === 2"
+                        class="overline grey--text text--darken-3 mx-2"
+                      >
+                        +{{ files.length - 2 }} File(s)
+                      </span>
+                    </template>
+                  </v-file-input>
+                </div>
+
                 <center>
                   <v-btn
                     :loading="loading3"
@@ -360,6 +397,15 @@
                     height="25"
                   >
                     <strong>{{ Math.ceil(percentCompleted) }}%</strong>
+                  </v-progress-linear>
+
+                  <v-progress-linear
+                    v-show="progress_label"
+                    v-model="LabelUploadCompleted"
+                    height="25"
+                    color="amber"
+                  >
+                    <strong>{{ Math.ceil(LabelUploadCompleted) }}%</strong>
                   </v-progress-linear>
                 </center>
               </div>
@@ -380,6 +426,7 @@
                   :headers="headersML"
                   :items="MLUpHistory"
                   :search="search"
+                  :items-per-page="5"
                   :sort-by="['date', 'time']"
                   :sort-desc="[true, true]"
                   multi-sort
@@ -438,12 +485,15 @@ export default {
         { text: "ขนาด", value: "size" },
       ],
       progress: false,
+      progress_label: false,
       percentCompleted: 0,
+      LabelUploadCompleted: 0,
       snackbar: false,
       snackbar2: false,
       snackbar3: false,
       loading3: false,
       files: [],
+      files_label: [],
       disabled: false,
       ClassName: [],
       TitleName: [],
@@ -514,7 +564,7 @@ export default {
     },
 
     uploadML() {
-      if (this.files.length == 0) {
+      if (this.files.length == 0 || this.files_label.length == 0) {
         this.snackbar3 = true;
       } else {
         this.progress = true;
@@ -541,22 +591,56 @@ export default {
         axios(config)
           .then((response) => {
             // console.log(JSON.stringify(response.data));
-            this.snackbar = true;
             this.loading3 = false;
             this.progress = false;
-            this.saveHistory();
+            this.uploadLabel();
           })
           .catch((error) => {
             console.log(error);
           });
       }
     },
+    uploadLabel() {
+      this.progress_label = true;
+      var FormData = require("form-data");
+      var data = new FormData();
+      data.append("file", this.files_label[0]);
+
+      var config = {
+        method: "post",
+        url: "https://3.138.195.177:8000/UpdateLabel/",
+        headers: {
+        },
+        data: data,
+        onUploadProgress: (progressEvent) => {
+          this.LabelUploadCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          // console.log(this.percentCompleted);
+        },
+      };
+
+      axios(config)
+        .then((response) => {
+          this.snackbar = true;
+          this.progress_label = false;
+          this.files_label = [];
+          this.saveHistory();
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    },
     getFileData() {
-      // console.log(this.files[0]);
+      console.log(this.files[0]);
       this.MLfilename = this.files[0].name;
       this.MLsize = (this.files[0].size / (1000 * 1000)).toFixed(2);
       // console.log(this.MLfilename);
     },
+    getFileLabel() {
+      console.log(this.files_label[0]);
+    },
+
     saveHistory() {
       db.collection("UpdateMLHistory")
         .add({

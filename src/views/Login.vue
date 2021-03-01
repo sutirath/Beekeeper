@@ -1,5 +1,5 @@
 <template>
-  <div class="bg">
+  <div class="bglogin">
     <div class="text-center">
       <v-dialog v-model="dialog" width="500">
         <v-card>
@@ -159,7 +159,7 @@ body,
 html {
   height: 100%;
 }
-.bg {
+.bglogin {
   /* The image used */
   background-image: url("../assets/bg.jpg");
 
